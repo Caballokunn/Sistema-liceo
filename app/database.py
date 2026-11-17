@@ -8,10 +8,10 @@ load_dotenv()
 pool = ConnectionPool(
     conninfo=os.environ["DB_URL"],
     min_size=1,
-    max_size=5,  # el pooler ya reparte conexiones, no necesitas muchas
+    max_size=5, 
     kwargs={
         "row_factory": dict_row,
-        "prepare_threshold": None,  # desactiva prepared statements
+        "prepare_threshold": None
     },
     open=False,
 )
