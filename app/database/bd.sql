@@ -81,6 +81,7 @@ CREATE TABLE usuarios (
     apellido2       varchar(100),
     rut             varchar(15)  NOT NULL,
     correo          varchar(150) NOT NULL,
+    constrasenia    varchar(255) DEFAULT NULL,
     fecha_nacimiento date,
     CONSTRAINT pk_usuarios              PRIMARY KEY (id),
     CONSTRAINT uq_usuarios_rut          UNIQUE (rut),

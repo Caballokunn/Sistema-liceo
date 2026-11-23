@@ -5,6 +5,13 @@ requires-python = ">=3.12"
 dependencies = [
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.163.2",
+    "pgvector>=0.5.1",
     "psycopg[binary,pool]>=3.3.9",
+    "pymupdf>=2.1",
     "python-dotenv>=1.2.4",
+    "sentence-transformers>=6.3.0",
+    "torch>=2.15.0",
 ]
+
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cpu"
