@@ -17,6 +17,9 @@ DATABASE_URL = _req("DB_URL")
 
 # --- Seguridad de tu API ---
 API_KEY = _req("API_KEY")
+JWT_SECRET = _req("JWT_SECRET")
+JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
+JWT_EXPIRATION_MINUTES = int(os.environ.get("JWT_EXPIRATION_MINUTES", "60"))
 
 # --- Embeddings (locales, gratis) ---
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "intfloat/multilingual-e5-small")  # 384 dims
