@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.database import get_conn
-from app.schemas.usuarios import ObtenerUsuarioOut, CrearUsuarioIn
+from app.schemas.usuario import ObtenerUsuarioOut, CrearUsuarioIn
 from app.services.usuario import obtenerUsuarioPorId, crearUsuario, actualizarUsuario, eliminarUsuario
 from uuid import UUID
 
-router = APIRouter(prefix="/usuario", tags=["usuarios"])
+router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 @router.get("/{id}", response_model=ObtenerUsuarioOut)
 def obtener(id: UUID, conn = Depends(get_conn)):
