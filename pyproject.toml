@@ -3,11 +3,12 @@ name = "sistema-liceo"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
-    "bcrypt>=5.0.0",
+    "bcrypt>=4.3.0",
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.163.2",
     "pgvector>=0.5.1",
     "psycopg[binary,pool]>=3.3.9",
+    "pyjwt>=2.10.1",
     "pymupdf>=2.1",
     "python-dotenv>=1.2.4",
     "sentence-transformers>=6.3.0",

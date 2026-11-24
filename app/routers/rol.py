@@ -1,9 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.database import get_conn
 from app.schemas.rol import ObtenerRolOut, CrearRolIn
+from app.services.auth import get_current_user
 from app.services.rol import obtenerRoles, obtenerRolPorId, crearRol, actualizarRol, eliminarRol
 
-router = APIRouter(prefix="/roles", tags=["roles"])
+router = APIRouter(
+    prefix="/roles",
+    tags=["roles"],
+    dependencies=[Depends(get_current_user)],
+)
 
 @router.get("", response_model=list[ObtenerRolOut])
 def listar(conn = Depends(get_conn)):

@@ -1,16 +1,10 @@
-import secrets
+from fastapi import APIRouter, Depends, HTTPException
 
-from fastapi import APIRouter, Depends, Header, HTTPException
-
-import app.config as config
 from app.database import get_conn
 from app.services.consulta import enviarMensaje, LLMNoDisponible, obtenerConsultaPorId
-from app.schemas.consulta import MensajeIn, MensajeOut, Fuente
-
-
-def check_key(x_api_key: str = Header(...)):
-    if not secrets.compare_digest(x_api_key, config.API_KEY):
-        raise HTTPException(status_code=401, detail="API key inválida")
+from app.schemas.consulta import ConsultaOut, MensajeIn, MensajeOut, Fuente
+from app.services.auth import get_current_user
+from uuid import UUID
 
 router = APIRouter(prefix="/consulta", tags=["consulta"])
 
@@ -19,8 +13,8 @@ def health():
     return {"ok": True}
 
 # Endpoint síncrono (def): FastAPI lo ejecuta en un threadpool, así no bloquea el event loop.
-@router.post("/consultar", response_model=MensajeOut, dependencies=[Depends(check_key)])
-def consultar(body: MensajeIn):
+@router.post("/consultar", response_model=MensajeOut)
+def consultar(body: MensajeIn, _usuario=Depends(get_current_user)):
     try:
         resultado = enviarMensaje(
             pregunta=body.mensaje,
@@ -38,9 +32,9 @@ def consultar(body: MensajeIn):
         fuentes=[Fuente(**vars(f)) for f in resultado.fuentes],
     )
 
-@router.post("/{id}", response_model=MensajeOut)
-def obtener_consulta(id: str, conn = Depends(get_conn)):
+@router.get("/{id}", response_model=ConsultaOut)
+def obtener_consulta(id: UUID, conn=Depends(get_conn), _usuario=Depends(get_current_user)):
     data = obtenerConsultaPorId(id, conn)
     if not data:
         raise HTTPException(status_code=404, detail="Consulta no encontrada")
-    return MensajeOut(respuesta=data["respuesta"], fuentes=data["fuentes"])
+    return data

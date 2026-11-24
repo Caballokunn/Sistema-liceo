@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from uuid import UUID
 
 import app.database as db
 import app.services.llm as llm
@@ -74,9 +75,10 @@ def enviarMensaje(pregunta: str, perfil: str = "estudiante", version: str | None
     )
 
 
-def obtenerConsultaPorId(id: int, conn):
-    try:
-        row = conn.execute("""SELECT user_id, rol_usuario, severidad, detalles, fecha_creacion FROM consultas WHERE id = %s""", (id,)).fetchone()
-        return row
-    except Exception as e:
-        return None
+def obtenerConsultaPorId(id: UUID, conn):
+    return conn.execute(
+        """SELECT user_id, rol_usuario_id, severidad, detalles, fecha_creacion
+           FROM consultas
+           WHERE id = %s""",
+        (id,),
+    ).fetchone()
