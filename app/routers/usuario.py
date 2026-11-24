@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.database import get_conn
-from app.schemas.usuarios import (
+from app.schemas.usuario import (
     ObtenerUsuarioOut,
     CrearUsuarioIn,
     ActualizarUsuarioIn,
@@ -20,14 +20,14 @@ def obtener(id: UUID, conn=Depends(get_conn), _usuario=Depends(get_current_user)
 
 @router.post("/crear", response_model=str)
 def crear(usuario: CrearUsuarioIn, conn=Depends(get_conn), _usuario=Depends(get_current_user)):
-    status = crearUsuario(usuario.dict(), conn)
+    status = crearUsuario(usuario.model_dump(), conn)
     if not status:
         raise HTTPException(status_code=400, detail="Error al crear el usuario")
     return 'Usuario creado exitosamente'
 
 @router.patch("/actualizar/{id}", response_model=str)
 def actualizar(id: UUID, usuario: ActualizarUsuarioIn, conn=Depends(get_conn), _usuario=Depends(get_current_user)):
-    status = actualizarUsuario(id, usuario.dict(), conn)
+    status = actualizarUsuario(id, usuario.model_dump(), conn)
     if not status:
         raise HTTPException(status_code=400, detail="Error al actualizar el usuario")
     return 'Usuario actualizado exitosamente'

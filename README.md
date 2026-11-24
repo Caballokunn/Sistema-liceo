@@ -8,7 +8,6 @@ Crear un archivo `.env` con:
 
 ```env
 DB_URL=postgresql://usuario:contraseña@host/base
-API_KEY=clave-legacy-no-necesaria-para-rutas-autenticadas
 JWT_SECRET=una-clave-secreta-larga-y-aleatoria
 JWT_ALGORITHM=HS256
 JWT_EXPIRATION_MINUTES=60

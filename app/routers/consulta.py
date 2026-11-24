@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.database import get_conn
 from app.services.consulta import enviarMensaje, LLMNoDisponible, obtenerConsultaPorId
-from app.schemas.consulta import MensajeIn, MensajeOut, Fuente
+from app.schemas.consulta import ConsultaOut, MensajeIn, MensajeOut, Fuente
 from app.services.auth import get_current_user
+from uuid import UUID
 
 router = APIRouter(prefix="/consulta", tags=["consulta"])
 
@@ -31,9 +32,9 @@ def consultar(body: MensajeIn, _usuario=Depends(get_current_user)):
         fuentes=[Fuente(**vars(f)) for f in resultado.fuentes],
     )
 
-@router.post("/{id}", response_model=MensajeOut)
-def obtener_consulta(id: str, conn=Depends(get_conn), _usuario=Depends(get_current_user)):
+@router.get("/{id}", response_model=ConsultaOut)
+def obtener_consulta(id: UUID, conn=Depends(get_conn), _usuario=Depends(get_current_user)):
     data = obtenerConsultaPorId(id, conn)
     if not data:
         raise HTTPException(status_code=404, detail="Consulta no encontrada")
-    return MensajeOut(respuesta=data["respuesta"], fuentes=data["fuentes"])
+    return data

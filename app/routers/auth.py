@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.database import get_conn
-from app.schemas.usuarios import LoginIn, TokenOut
+from app.schemas.usuario import LoginIn, TokenOut
 from app.services.auth import autenticar, crear_access_token
 
 

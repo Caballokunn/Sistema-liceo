@@ -6,7 +6,6 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 import app.config as config
-from app.database import get_conn
 
 
 bearer = HTTPBearer(auto_error=False)

@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.database import get_conn
+from app.services.auth import get_current_user
 from app.schemas.caso import (
     ActualizarCasoIn,
     CambiarEstadoCasoIn,
@@ -21,7 +22,11 @@ from app.services.caso import (
     obtenerCasoPorId,
 )
 
-router = APIRouter(prefix="/caso", tags=["casos"])
+router = APIRouter(
+    prefix="/caso",
+    tags=["casos"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("/", response_model=list[ObtenerCasoOut])
