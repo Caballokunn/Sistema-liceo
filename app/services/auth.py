@@ -33,13 +33,13 @@ def crear_access_token(usuario_id: str, rol: str) -> str:
 
 def autenticar(correo: str, contrasena: str, conn) -> dict | None:
     usuario = conn.execute(
-        """SELECT u.id, u.constrasenia, r.nombre AS rol
+        """SELECT u.id, u.contrasenia, r.nombre AS rol
            FROM usuarios u
            JOIN roles r ON r.id = u.rol_id
            WHERE u.correo = %s""",
         (correo,),
     ).fetchone()
-    if not usuario or not verificar_contrasena(contrasena, usuario["constrasenia"]):
+    if not usuario or not verificar_contrasena(contrasena, usuario["contrasenia"]):
         return None
     return usuario
 
