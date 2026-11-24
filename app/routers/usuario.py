@@ -9,7 +9,7 @@ from app.services.auth import get_current_user
 from app.services.usuario import obtenerUsuarioPorId, crearUsuario, actualizarUsuario, eliminarUsuario
 from uuid import UUID
 
-router = APIRouter(prefix="/usuario", tags=["usuarios"])
+router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 @router.get("/{id}", response_model=ObtenerUsuarioOut)
 def obtener(id: UUID, conn=Depends(get_conn), _usuario=Depends(get_current_user)):

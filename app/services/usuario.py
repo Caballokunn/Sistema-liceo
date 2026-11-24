@@ -12,6 +12,8 @@ def obtenerUsuarioPorId(id: str, conn):
         return None
 
 def crearUsuario(usuario: dict, conn):
+    password = usuario['contrasenia'].encode('utf-8')
+    hash = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
     try:
         password_hash = bcrypt.hashpw(
             usuario["contrasena"].encode("utf-8"),

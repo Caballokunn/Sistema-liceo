@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import date
 
 class ObtenerUsuarioOut(BaseModel):
-    rol: str | None = None
+    rol: str
     departamento: str | None = None     
     nombre: str          
     apellido1: str          
