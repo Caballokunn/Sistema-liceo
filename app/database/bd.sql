@@ -285,9 +285,10 @@ CREATE TABLE cita_participantes (
 -- ============================================================================
 
 -- Consultas / tickets de soporte abiertos por un usuario según su rol.
+-- user_id es NULL cuando la consulta es anónima; en ese caso solo se registra el rol del consultante.
 CREATE TABLE consultas (
     id             uuid        NOT NULL DEFAULT gen_random_uuid(),
-    user_id        uuid        NOT NULL,
+    user_id        uuid,
     rol_usuario_id integer     NOT NULL,
     severidad      varchar(20),
     detalles       text,

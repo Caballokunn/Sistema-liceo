@@ -20,6 +20,7 @@ class Fuente(BaseModel):
 
 
 class MensajeOut(BaseModel):
+    consulta_id: UUID | None = None
     respuesta: str
     gravedad: str  # no_aplica | leve | grave | gravisima | indeterminada
     aviso: str | None  # texto fijo de "qué hacer ahora" (None si no corresponde)
@@ -30,4 +31,12 @@ class ConsultaOut(BaseModel):
     rol_usuario_id: int
     severidad: str | None = None
     detalles: str | None = None
+    fecha_creacion: datetime
+
+class ConsultaLogOut(BaseModel):
+    id: UUID
+    consulta_id: UUID
+    mensaje: str | None = None
+    adjunto: str | None = None
+    respuesta: str | None = None
     fecha_creacion: datetime

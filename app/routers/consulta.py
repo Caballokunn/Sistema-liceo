@@ -1,23 +1,43 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.database import get_conn
-from app.services.consulta import enviarMensaje, LLMNoDisponible, obtenerConsultaPorId
-from app.schemas.consulta import ConsultaOut, MensajeIn, MensajeOut, Fuente
-from app.services.auth import get_current_user
-from uuid import UUID
+from app.services.auth import get_current_user_optional
+from app.services.consulta import (
+    ConsultaNoEncontrada,
+    LLMNoDisponible,
+    continuarConsulta,
+    crearConsultaConMensaje,
+    obtenerConsultaPorId,
+    obtenerLogs,
+)
+from app.schemas.consulta import ConsultaLogOut, ConsultaOut, MensajeIn, MensajeOut
 
 router = APIRouter(prefix="/consulta", tags=["consulta"])
+
+
+def _usuario_id(usuario: dict | None):
+    return UUID(usuario["id"]) if usuario else None
+
 
 @router.get("/health")
 def health():
     return {"ok": True}
 
-# Endpoint síncrono (def): FastAPI lo ejecuta en un threadpool, así no bloquea el event loop.
-@router.post("/consultar", response_model=MensajeOut)
-def consultar(body: MensajeIn, _usuario=Depends(get_current_user)):
+
+@router.post("/mensaje", response_model=MensajeOut)
+def iniciar_sesion(
+    body: MensajeIn,
+    conn=Depends(get_conn),
+    usuario=Depends(get_current_user_optional),
+):
+    """Crea una sesión de consulta, con o sin usuario autenticado."""
     try:
-        resultado = enviarMensaje(
-            pregunta=body.mensaje,
+        return crearConsultaConMensaje(
+            usuario_id=_usuario_id(usuario),
+            mensaje=body.mensaje,
+            conn=conn,
             perfil=body.perfil,
             version=body.version,
             k=body.k,
@@ -25,16 +45,51 @@ def consultar(body: MensajeIn, _usuario=Depends(get_current_user)):
     except LLMNoDisponible as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
-    return MensajeOut(
-        respuesta=resultado.respuesta,
-        gravedad=resultado.gravedad,
-        aviso=resultado.aviso,
-        fuentes=[Fuente(**vars(f)) for f in resultado.fuentes],
-    )
+
+@router.post("/{id}/mensaje", response_model=MensajeOut)
+def continuar_sesion(
+    id: UUID,
+    body: MensajeIn,
+    conn=Depends(get_conn),
+    usuario=Depends(get_current_user_optional),
+):
+    """Agrega un mensaje a una sesión existente y usa los anteriores como contexto."""
+    try:
+        return continuarConsulta(
+            consulta_id=id,
+            usuario_id=_usuario_id(usuario),
+            mensaje=body.mensaje,
+            conn=conn,
+            perfil=body.perfil,
+            version=body.version,
+            k=body.k,
+        )
+    except ConsultaNoEncontrada as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except LLMNoDisponible as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.get("/{id}/logs", response_model=list[ConsultaLogOut])
+def logs(
+    id: UUID,
+    conn=Depends(get_conn),
+    usuario=Depends(get_current_user_optional),
+):
+    """Historial completo de mensajes y respuestas de una sesión."""
+    try:
+        return obtenerLogs(id, _usuario_id(usuario), conn)
+    except ConsultaNoEncontrada as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
 
 @router.get("/{id}", response_model=ConsultaOut)
-def obtener_consulta(id: UUID, conn=Depends(get_conn), _usuario=Depends(get_current_user)):
-    data = obtenerConsultaPorId(id, conn)
+def obtener_consulta(
+    id: UUID,
+    conn=Depends(get_conn),
+    usuario=Depends(get_current_user_optional),
+):
+    data = obtenerConsultaPorId(id, conn, _usuario_id(usuario))
     if not data:
         raise HTTPException(status_code=404, detail="Consulta no encontrada")
     return data

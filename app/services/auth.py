@@ -44,15 +44,12 @@ def autenticar(correo: str, contrasena: str, conn) -> dict | None:
     return usuario
 
 
-def get_current_user(
+def get_current_user_optional(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
-):
+) -> dict | None:
+    """Devuelve el usuario del token o None si la petición es anónima."""
     if credentials is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales requeridas",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return None
     try:
         payload = jwt.decode(
             credentials.credentials,
@@ -69,3 +66,17 @@ def get_current_user(
             detail="Token inválido o expirado",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
+):
+    usuario = get_current_user_optional(credentials)
+    if usuario is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales requeridas",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return usuario
+
